@@ -5,7 +5,7 @@
 export type MimeMetadata = {
 
 	/** the MIME type */
-	readonly type: string 
+    readonly type: string 
 
 	/** Is compressible or not */
 	readonly isCompressible: boolean 
