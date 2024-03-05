@@ -1,6 +1,6 @@
 /**
- * 	Metadatas associated with a
- * 	specific MIME
+ *  Metadatas associated with a
+ *  specific MIME
  */
 export type MimeMetadata = {
     
@@ -68,7 +68,7 @@ export function extensionsFromMimetype(
 
 /**
  *  Returns MIME informations associated with
- * 	the extension `ext`
+ *  the extension `ext`
  */
 export function lookup(
     ext: string
