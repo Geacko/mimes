@@ -58,7 +58,7 @@ export function extensionsFromMimetype(
 	mimetype: string
 ) : readonly string[] | undefined {
 
-	return mimeToExtMap.get(mimetype)
+    return mimeToExtMap.get(mimetype)
 
 }
 
