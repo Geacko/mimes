@@ -1,4 +1,4 @@
-# Mime Lookup For Deno
+# Mime Lookup
 
 ## Example 1
 
