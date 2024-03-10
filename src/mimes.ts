@@ -2,16 +2,19 @@
  *  Metadatas associated with a
  *  specific MIME
  */
-export type MimeMetadata = {
+export interface MimeMetadata {
     
     /** the MIME type */
-    readonly type: string
+    get type(): string
 
     /** Is compressible or not */
-    readonly isCompressible: boolean
+    get isCompressible(): boolean
 
     /** Is UTF-8 or not */
-    readonly isUtf8: boolean
+    get isUtf8(): boolean
+
+    /** The `Content-Type` header */
+    get contentType(): string
 
 }
 
@@ -43,7 +46,8 @@ Object.keys(db).forEach((t) => {
         const m = Object.freeze({
             isUtf8: charset == 'UTF-8', 
             isCompressible: compressible == true, 
-            type: t
+            type: t,
+            contentType : t + (charset == 'UTF-8' ? '; charset=UTF-8' : '')
         })
 
         for (const e of extensions) {
@@ -68,16 +72,20 @@ export function extensionsFromMimetype(
 
 /**
  *  Returns MIME informations associated with
- *  the extension `ext`
+ *  the path or the extension (prefixed with ".")
  */
 export function lookup(
-    ext: string
+    pathOrExt: string
 ) : MimeMetadata | undefined {
 
-    if (ext.startsWith(`.`)) {
-        ext = ext.substring(1)
+    const i = pathOrExt.lastIndexOf('.')
+
+    if (i == -1) {
+        return void 0
     }
 
-    return extToMimeMap.get(ext)
+    return extToMimeMap.get(
+        pathOrExt.substring(i + 1)
+    )
 
 }

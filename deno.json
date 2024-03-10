@@ -1,5 +1,5 @@
 {
     "name": "@geacko/mimes",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "exports" : "./mod.ts"
 }
