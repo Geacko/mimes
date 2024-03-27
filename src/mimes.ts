@@ -1,72 +1,92 @@
+// Copyright 2024 Grégoire Jacquot <gregoirejacquot@outlook.com>. All rights reserved. MIT license.
+
 /**
  *  Metadatas associated with a
  *  specific MIME
  */
-export interface MimeMetadata {
+export type MimeMetadata = Readonly<{
     
-    /** the MIME type */
-    get type(): string
+    /** 
+     * the MIME type 
+     * @readonly
+     * */
+    type: string
 
-    /** Is compressible or not */
-    get isCompressible(): boolean
+    /** 
+     * Is compressible or not 
+     * @readonly
+     * */
+    isCompressible: boolean
 
-    /** Is UTF-8 or not */
-    get isUtf8(): boolean
+    /** 
+     * Is UTF-8 or not 
+     * @readonly
+     * */
+    isUtf8: boolean
 
-    /** The `Content-Type` header */
-    get contentType(): string
+    /** 
+     * The `Content-Type` header 
+     * @readonly
+     * */
+    contentType: string
 
-}
+}>
 
-/** @internal */
-const mimeToExtMap = new Map<string, readonly string[]>();
-
-/** @internal */
-const extToMimeMap = new Map<string, MimeMetadata>();
-
-// Fetch mimetype metadatas
 const db = await (await fetch(`https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/db.json`)).json() as Record<string, Partial<{
-    source: string, compressible: boolean, extensions: string[], charset: string
+
+    source       : string 
+    compressible : boolean
+    extensions   : Array<string> 
+    charset      : string
+
 }>>
 
-// Hydrate maps
-Object.keys(db).forEach((t) => {
+const mimeToExt = new Map<string, Readonly<Array<string>>>()
+const extToMime = new Map<string, MimeMetadata>()
+
+Object.keys(db).forEach(type => {
 
     const {
         extensions, compressible, charset
-    } = db[t]!
+    } = db[type]!
 
     if (
         extensions &&
         extensions.length != 0
     ) {
 
-        mimeToExtMap.set(t, Object.freeze(extensions));
+        mimeToExt.set(type, Object.freeze(extensions))
+
+        const isUtf8 
+            = charset == 'UTF-8'
+
+        const contentType 
+            = isUtf8 
+            ? type + '; charset=UTF-8' 
+            : type
 
         const m = Object.freeze({
-            isUtf8: charset == 'UTF-8', 
-            isCompressible: compressible == true, 
-            type: t,
-            contentType : t + (charset == 'UTF-8' ? '; charset=UTF-8' : '')
+            type, contentType, isUtf8, isCompressible: compressible == true
         })
 
         for (const e of extensions) {
-            extToMimeMap.set(e, m)
+            extToMime.set(e, m)
         }
 
     }
 
 })
 
+
 /**
- *  Returns possible extensions associated
- *  with the MIME type `mimetype`
+ *  Returns extensions associated with 
+ *  the MIME type
  */
 export function extensionsFromMimetype(
     mimetype: string
 ) : readonly string[] | undefined {
 
-    return mimeToExtMap.get(mimetype)
+    return mimeToExt.get(mimetype)
 
 }
 
@@ -80,12 +100,8 @@ export function lookup(
 
     const i = pathOrExt.lastIndexOf('.')
 
-    if (i == -1) {
-        return void 0
-    }
-
-    return extToMimeMap.get(
-        pathOrExt.substring(i + 1)
-    )
+    return i >= 0 
+         ? extToMime.get(pathOrExt.substring(i + 1)) 
+         : undefined
 
 }
